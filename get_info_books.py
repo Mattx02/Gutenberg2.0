@@ -136,3 +136,5 @@ cursor = con.cursor()
 
 
 #book1 = Book(url)
+
+https://djangostars.com/blog/merging-django-orm-with-sqlalchemy-for-easier-data-analysis/

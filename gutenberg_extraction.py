@@ -6,27 +6,39 @@ from pandas import DataFrame
 from connection_cred import ConfigDB
 from sqlalchemy import create_engine
 
+
 # wykorzystać Bookszdaniacolumnnames i przetestować całego programu. Podac jakies id -> 3 ksiązki i bez powtórzeń
 class TABLE_NAME:
     BOOKS_ZDANIA = 'books_zdania'
 
-class BooksZdaniaColumnNames():
+
+class BooksZdaniaColumnNames:
     id = 'id'
+    id_gutenberg = 'id_gutenberg'
     zdania = 'zdania'
 
 
-name =   'Dracula'
-id = 1 #
-    # id = get_book_id(name)
+class BooksColumnNames:
+    # wszystkie columny jakie ma ta tabela
+    id_gutenberg = 'id_gutenberg'
+    zdania = 'zdania'
+
+
+name = 'Dracula'
+id = 1  #
+
+
+# id = get_book_id(name)
 def load_from_gutenberg(id: int) -> DataFrame:
-    print(id) # 1000
+    print(id)  # 1000
     url = f"https://www.gutenberg.org/cache/epub/{id}/pg{id}.txt"
     rq = requests.get(url)
     text_mod = rq.text.replace("\r\n", '')
     zdania = text_mod.split(".")
     df = pd.DataFrame({'zdania': zdania})  # czas dodania do bazy
-    df['id'] = id
+    df[BooksZdaniaColumnNames.id_gutenberg] = id
     return df
+
 
 engine = create_engine(
     f'postgresql+psycopg2://{ConfigDB.username}:{ConfigDB.password}@{ConfigDB.host}:{ConfigDB.port}/{ConfigDB.database}')
@@ -48,7 +60,7 @@ def load_table_from_db(engine, table_name) -> DataFrame:
 
 def _filter_by_id(df, book_id):
     # df.query(f'id == {book_id}') # ten sam rezulta
-    return df[df['id'] == book_id]
+    return df[df[BooksZdaniaColumnNames.id_gutenberg] == book_id]
 
 
 def count_df(df):
@@ -73,9 +85,8 @@ def add_zdania_to_db(engine, book_id):
     if output_bool is True:  # if output_bool:
         print_msg()
     elif output_bool is False:  # if not output_bool: # przechodzi False i None
-        book = load_from_gutenberg(id=book_id) # id = 1000
+        book = load_from_gutenberg(id=book_id)  # id = 1000
         save_append_table(engine, book, TABLE_NAME.BOOKS_ZDANIA)
-
 
 
 # zmiana na sqlalchemy
@@ -90,11 +101,11 @@ def add_zdania_to_db(engine, book_id):
 # df => ksiazka z podzilaem na zdania (schema?) # # utworzyc klase ktora bedzie miala nazwy kolumn i moze typy
 # dodanie ksiazki do db
 
-id = 25
+id = 33
 add_zdania_to_db(engine, id)
 
-#8,1000, 965,25
+# 8,1000, 965,25
 
-#next steps: ->
+# next steps: ->
 
 # sqlalchemy -> create schema -> increatmenta id for zdania and create table base on this class
